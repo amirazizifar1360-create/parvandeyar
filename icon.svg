@@ -1,0 +1,83 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <defs>
+    <!-- پس‌زمینه تیره -->
+    <linearGradient id="bgGrad" x1="0" y1="0" x2="0.3" y2="1">
+      <stop offset="0%" stop-color="#111c33"/>
+      <stop offset="55%" stop-color="#0f172a"/>
+      <stop offset="100%" stop-color="#0a0f1e"/>
+    </linearGradient>
+
+    <!-- گرادیان پوشه -->
+    <linearGradient id="folderGrad" x1="0.05" y1="0.1" x2="0.95" y2="0.95">
+      <stop offset="0%" stop-color="#fbbf24"/>
+      <stop offset="45%" stop-color="#f59e0b"/>
+      <stop offset="100%" stop-color="#d97706"/>
+    </linearGradient>
+
+    <!-- هایلایت بالای پوشه -->
+    <linearGradient id="folderHighlight" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#ffffff" stop-opacity="0.28"/>
+      <stop offset="100%" stop-color="#ffffff" stop-opacity="0"/>
+    </linearGradient>
+
+    <!-- سایه ملایم پوشه -->
+    <filter id="softShadow" x="-15%" y="-15%" width="130%" height="130%">
+      <feGaussianBlur in="SourceAlpha" stdDeviation="7"/>
+      <feOffset dx="0" dy="5" result="shadow"/>
+      <feComponentTransfer in="shadow" result="softShadow">
+        <feFuncA type="linear" slope="0.4"/>
+      </feComponentTransfer>
+      <feMerge>
+        <feMergeNode in="softShadow"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+
+  <!-- پس‌زمینه مربع گردشده (سبک iOS) -->
+  <rect width="512" height="512" rx="115" ry="115" fill="url(#bgGrad)"/>
+
+  <!-- رفلکس خیلی ملایم روی پس‌زمینه -->
+  <ellipse cx="256" cy="80" rx="220" ry="90" fill="#ffffff" opacity="0.03"/>
+
+  <!-- پوشه -->
+  <g filter="url(#softShadow)">
+    <!-- بدنه پوشه با تب گوشه‌ی بالا-چپ -->
+    <path d="
+      M 96 202
+      Q 96 182 116 182
+      L 196 182
+      Q 208 182 216 192
+      L 234 214
+      L 396 214
+      Q 416 214 416 234
+      L 416 396
+      Q 416 416 396 416
+      L 116 416
+      Q 96 416 96 396
+      Z
+    " fill="url(#folderGrad)"/>
+
+    <!-- هایلایت بالای پوشه -->
+    <path d="
+      M 96 202
+      Q 96 182 116 182
+      L 196 182
+      Q 208 182 216 192
+      L 234 214
+      L 396 214
+      Q 416 214 416 234
+      L 416 250
+      L 96 250
+      Z
+    " fill="url(#folderHighlight)"/>
+  </g>
+
+  <!-- خطوط داخل پوشه (اسناد) -->
+  <!-- خط ۱: سفید خالص -->
+  <rect x="140" y="272" width="232" height="17" rx="8.5" fill="#ffffff"/>
+  <!-- خط ۲: کرم روشن -->
+  <rect x="140" y="311" width="232" height="17" rx="8.5" fill="#fef3c7" opacity="0.92"/>
+  <!-- خط ۳: کوتاه‌تر و ملایم‌تر -->
+  <rect x="140" y="350" width="156" height="17" rx="8.5" fill="#fde68a" opacity="0.78"/>
+</svg>

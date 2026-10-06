@@ -1,0 +1,462 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>🎨 ساخت آیکون‌های پرونده‌یار</title>
+<link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body {
+    font-family: 'Vazirmatn', Tahoma, sans-serif;
+    background:
+      radial-gradient(circle at 20% 10%, rgba(217,119,6,.12), transparent 45%),
+      radial-gradient(circle at 85% 90%, rgba(124,58,237,.10), transparent 45%),
+      linear-gradient(160deg, #0a0f1e 0%, #0f172a 60%, #1a1f3a 100%);
+    min-height: 100vh;
+    color: #fff;
+    padding: 40px 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .card {
+    background: rgba(255,255,255,.04);
+    border: 1px solid rgba(255,255,255,.08);
+    border-radius: 24px;
+    padding: 40px 32px;
+    max-width: 640px;
+    width: 100%;
+    backdrop-filter: blur(12px);
+    box-shadow: 0 30px 80px -20px rgba(0,0,0,.5);
+  }
+
+  h1 {
+    font-size: 24px;
+    font-weight: 900;
+    text-align: center;
+    margin-bottom: 8px;
+    background: linear-gradient(120deg, #fbbf24, #f59e0b 60%, #d97706);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .sub {
+    text-align: center;
+    font-size: 13px;
+    color: #94a3b8;
+    margin-bottom: 28px;
+    line-height: 1.9;
+  }
+
+  .preview-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 16px;
+    margin-bottom: 28px;
+  }
+
+  .preview-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .preview-box {
+    background: #0a0f1e;
+    border: 1.5px solid rgba(251,191,36,.2);
+    border-radius: 20%;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 8px 24px rgba(0,0,0,.4);
+  }
+
+  .preview-box.lg { width: 128px; height: 128px; }
+  .preview-box.md { width: 96px; height: 96px; }
+  .preview-box.sm { width: 64px; height: 64px; }
+
+  .preview-box img {
+    width: 100%;
+    height: 100%;
+    display: block;
+  }
+
+  .preview-label {
+    font-size: 11px;
+    color: #64748b;
+    font-weight: 700;
+  }
+
+  .info-box {
+    background: rgba(251,191,36,.06);
+    border: 1px solid rgba(251,191,36,.18);
+    border-radius: 14px;
+    padding: 16px 18px;
+    margin-bottom: 24px;
+    font-size: 12.5px;
+    color: #cbd5e1;
+    line-height: 2;
+  }
+
+  .info-box b { color: #fbbf24; }
+
+  .btn-generate {
+    width: 100%;
+    padding: 16px 24px;
+    border: none;
+    border-radius: 14px;
+    background: linear-gradient(135deg, #fbbf24, #d97706);
+    color: #0f172a;
+    font-family: inherit;
+    font-size: 15px;
+    font-weight: 900;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    box-shadow: 0 14px 40px rgba(217,119,6,.4);
+    transition: all .25s;
+  }
+
+  .btn-generate:hover:not(:disabled) {
+    transform: translateY(-3px);
+    box-shadow: 0 20px 50px rgba(217,119,6,.55);
+  }
+
+  .btn-generate:disabled {
+    opacity: .6;
+    cursor: wait;
+  }
+
+  .btn-generate .ico {
+    font-size: 20px;
+  }
+
+  .status {
+    text-align: center;
+    margin-top: 20px;
+    font-size: 13px;
+    font-weight: 700;
+    min-height: 24px;
+    padding: 8px;
+    border-radius: 10px;
+    transition: all .3s;
+  }
+
+  .status.success {
+    background: rgba(16,185,129,.12);
+    border: 1px solid rgba(16,185,129,.3);
+    color: #6ee7b7;
+  }
+
+  .status.error {
+    background: rgba(239,68,68,.12);
+    border: 1px solid rgba(239,68,68,.3);
+    color: #fca5a5;
+  }
+
+  .status.info {
+    background: rgba(59,130,246,.12);
+    border: 1px solid rgba(59,130,246,.3);
+    color: #93c5fd;
+  }
+
+  .files-list {
+    margin-top: 16px;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+  }
+
+  .file-chip {
+    padding: 10px 12px;
+    background: rgba(255,255,255,.05);
+    border: 1px solid rgba(255,255,255,.1);
+    border-radius: 10px;
+    text-align: center;
+    font-size: 11.5px;
+    color: #cbd5e1;
+    font-weight: 700;
+    transition: all .2s;
+  }
+
+  .file-chip.done {
+    background: rgba(16,185,129,.1);
+    border-color: rgba(16,185,129,.35);
+    color: #6ee7b7;
+  }
+
+  .file-chip .fname {
+    font-family: monospace;
+    font-size: 11px;
+    direction: ltr;
+    display: block;
+    margin-top: 4px;
+    opacity: .75;
+  }
+
+  .hint {
+    text-align: center;
+    margin-top: 22px;
+    font-size: 11.5px;
+    color: #64748b;
+    line-height: 2;
+  }
+
+  .hint code {
+    background: rgba(255,255,255,.06);
+    padding: 2px 8px;
+    border-radius: 6px;
+    font-family: monospace;
+    color: #fbbf24;
+    direction: ltr;
+    display: inline-block;
+  }
+</style>
+</head>
+<body>
+
+<div class="card">
+  <h1>🎨 ساخت آیکون‌های پرونده‌یار</h1>
+  <p class="sub">دکمه‌ی زیر رو بزن تا هر سه فایل آیکون ساخته و دانلود بشن</p>
+
+  <div class="preview-row">
+    <div class="preview-item">
+      <div class="preview-box lg"><img id="prev512" alt="512"></div>
+      <div class="preview-label">512 × 512</div>
+    </div>
+    <div class="preview-item">
+      <div class="preview-box md"><img id="prev192" alt="192"></div>
+      <div class="preview-label">192 × 192</div>
+    </div>
+    <div class="preview-item">
+      <div class="preview-box sm"><img id="prev64" alt="64"></div>
+      <div class="preview-label">64 × 64</div>
+    </div>
+  </div>
+
+  <div class="info-box">
+    💡 این ابزار سه فایل زیر رو می‌سازه:<br>
+    <b>icon.svg</b> — نسخه‌ی وکتور (برای مرورگرهای مدرن)<br>
+    <b>icon-192.png</b> — برای PWA و صفحه‌ی اصلی موبایل<br>
+    <b>icon-512.png</b> — برای فروشگاه‌ها و نمایش باکیفیت
+  </div>
+
+  <button class="btn-generate" id="genBtn">
+    <span class="ico">⬇️</span>
+    <span>ساخت و دانلود هر سه فایل</span>
+  </button>
+
+  <div class="status" id="status"></div>
+
+  <div class="files-list">
+    <div class="file-chip" id="chip-svg">📄 SVG<span class="fname">icon.svg</span></div>
+    <div class="file-chip" id="chip-192">🖼️ PNG<span class="fname">icon-192.png</span></div>
+    <div class="file-chip" id="chip-512">🖼️ PNG<span class="fname">icon-512.png</span></div>
+  </div>
+
+  <div class="hint">
+    پس از دانلود، فایل‌ها رو در <code>کنار index.html</code> قرار بده<br>
+    (همون پوشه‌ای که manifest.json توشه)
+  </div>
+</div>
+
+<script>
+(function(){
+  'use strict';
+
+  // ═══════════════════════════════════════════════
+  // 🎨 کد SVG آیکون — همین یه‌جا قابل ویرایشه
+  // ═══════════════════════════════════════════════
+  const SVG_CODE = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <defs>
+    <linearGradient id="bgGrad" x1="0" y1="0" x2="0.3" y2="1">
+      <stop offset="0%" stop-color="#111c33"/>
+      <stop offset="55%" stop-color="#0f172a"/>
+      <stop offset="100%" stop-color="#0a0f1e"/>
+    </linearGradient>
+    <linearGradient id="folderGrad" x1="0.05" y1="0.1" x2="0.95" y2="0.95">
+      <stop offset="0%" stop-color="#fbbf24"/>
+      <stop offset="45%" stop-color="#f59e0b"/>
+      <stop offset="100%" stop-color="#d97706"/>
+    </linearGradient>
+    <linearGradient id="folderHighlight" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#ffffff" stop-opacity="0.28"/>
+      <stop offset="100%" stop-color="#ffffff" stop-opacity="0"/>
+    </linearGradient>
+    <filter id="softShadow" x="-15%" y="-15%" width="130%" height="130%">
+      <feGaussianBlur in="SourceAlpha" stdDeviation="7"/>
+      <feOffset dx="0" dy="5" result="shadow"/>
+      <feComponentTransfer in="shadow" result="softShadow">
+        <feFuncA type="linear" slope="0.4"/>
+      </feComponentTransfer>
+      <feMerge>
+        <feMergeNode in="softShadow"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+  <rect width="512" height="512" rx="115" ry="115" fill="url(#bgGrad)"/>
+  <ellipse cx="256" cy="80" rx="220" ry="90" fill="#ffffff" opacity="0.03"/>
+  <g filter="url(#softShadow)">
+    <path d="M 96 202 Q 96 182 116 182 L 196 182 Q 208 182 216 192 L 234 214 L 396 214 Q 416 214 416 234 L 416 396 Q 416 416 396 416 L 116 416 Q 96 416 96 396 Z" fill="url(#folderGrad)"/>
+    <path d="M 96 202 Q 96 182 116 182 L 196 182 Q 208 182 216 192 L 234 214 L 396 214 Q 416 214 416 234 L 416 250 L 96 250 Z" fill="url(#folderHighlight)"/>
+  </g>
+  <rect x="140" y="272" width="232" height="17" rx="8.5" fill="#ffffff"/>
+  <rect x="140" y="311" width="232" height="17" rx="8.5" fill="#fef3c7" opacity="0.92"/>
+  <rect x="140" y="350" width="156" height="17" rx="8.5" fill="#fde68a" opacity="0.78"/>
+</svg>`;
+
+  // ═══════════════════════════════════════════════
+  // ابزار: ذخیره Blob به‌عنوان دانلود
+  // ═══════════════════════════════════════════════
+  function downloadBlob(blob, filename){
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    setTimeout(() => URL.revokeObjectURL(url), 2000);
+  }
+
+  function downloadDataURL(dataUrl, filename){
+    const a = document.createElement('a');
+    a.href = dataUrl;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+  }
+
+  // ═══════════════════════════════════════════════
+  // ساخت PNG از SVG با canvas
+  // ═══════════════════════════════════════════════
+  function svgToPng(size){
+    return new Promise((resolve, reject) => {
+      const svgBlob = new Blob([SVG_CODE], { type: 'image/svg+xml;charset=utf-8' });
+      const url = URL.createObjectURL(svgBlob);
+      const img = new Image();
+      img.crossOrigin = 'anonymous';
+
+      img.onload = () => {
+        try {
+          const canvas = document.createElement('canvas');
+          canvas.width = size;
+          canvas.height = size;
+          const ctx = canvas.getContext('2d');
+          ctx.imageSmoothingEnabled = true;
+          ctx.imageSmoothingQuality = 'high';
+          ctx.clearRect(0, 0, size, size);
+          ctx.drawImage(img, 0, 0, size, size);
+          const dataUrl = canvas.toDataURL('image/png');
+          URL.revokeObjectURL(url);
+          resolve(dataUrl);
+        } catch(e) {
+          URL.revokeObjectURL(url);
+          reject(e);
+        }
+      };
+
+      img.onerror = () => {
+        URL.revokeObjectURL(url);
+        reject(new Error('خطا در بارگذاری SVG'));
+      };
+
+      img.src = url;
+    });
+  }
+
+  // ═══════════════════════════════════════════════
+  // پیش‌نمایش اولیه
+  // ═══════════════════════════════════════════════
+  function renderPreviews(){
+    const svgBlob = new Blob([SVG_CODE], { type: 'image/svg+xml;charset=utf-8' });
+    const url = URL.createObjectURL(svgBlob);
+
+    // نسخه‌های PNG (برای پیش‌نمایش، از SVG استفاده می‌کنیم)
+    svgToPng(512).then(dataUrl => {
+      document.getElementById('prev512').src = dataUrl;
+    });
+    svgToPng(192).then(dataUrl => {
+      document.getElementById('prev192').src = dataUrl;
+    });
+    svgToPng(64).then(dataUrl => {
+      document.getElementById('prev64').src = dataUrl;
+    });
+  }
+
+  // ═══════════════════════════════════════════════
+  // اکشن اصلی: ساخت و دانلود
+  // ═══════════════════════════════════════════════
+  async function generateAll(){
+    const btn = document.getElementById('genBtn');
+    const status = document.getElementById('status');
+
+    btn.disabled = true;
+    btn.querySelector('span:last-child').textContent = 'در حال ساخت...';
+    status.className = 'status info';
+    status.textContent = '⏳ در حال ساخت فایل‌ها...';
+
+    // ریست chip‌ها
+    ['svg','192','512'].forEach(id => {
+      document.getElementById('chip-' + id).classList.remove('done');
+    });
+
+    try {
+      // ۱. دانلود SVG
+      const svgBlob = new Blob([SVG_CODE], { type: 'image/svg+xml;charset=utf-8' });
+      downloadBlob(svgBlob, 'icon.svg');
+      document.getElementById('chip-svg').classList.add('done');
+
+      await new Promise(r => setTimeout(r, 400));
+
+      // ۲. دانلود PNG 192
+      const png192 = await svgToPng(192);
+      downloadDataURL(png192, 'icon-192.png');
+      document.getElementById('chip-192').classList.add('done');
+
+      await new Promise(r => setTimeout(r, 400));
+
+      // ۳. دانلود PNG 512
+      const png512 = await svgToPng(512);
+      downloadDataURL(png512, 'icon-512.png');
+      document.getElementById('chip-512').classList.add('done');
+
+      status.className = 'status success';
+      status.innerHTML = '✅ هر سه فایل با موفقیت دانلود شدن!<br><span style="font-size:11px;opacity:.8">پوشه‌ی Downloads رو چک کن</span>';
+    } catch(e) {
+      console.error(e);
+      status.className = 'status error';
+      status.textContent = '❌ خطا: ' + e.message;
+    } finally {
+      btn.disabled = false;
+      btn.querySelector('span:last-child').textContent = 'ساخت و دانلود هر سه فایل';
+    }
+  }
+
+  // ═══════════════════════════════════════════════
+  // راه‌اندازی
+  // ═══════════════════════════════════════════════
+  document.getElementById('genBtn').addEventListener('click', generateAll);
+
+  // پیش‌نمایش‌ها بعد از لود
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', renderPreviews);
+  } else {
+    renderPreviews();
+  }
+
+})();
+</script>
+
+</body>
+</html>
