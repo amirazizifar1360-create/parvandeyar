@@ -26516,5 +26516,263 @@ document.addEventListener('keydown', e => {
 console.log('%c✅ V75 — PDF→Tab, Image→Modal', 'background:#22c55e;color:#fff;padding:5px 12px;border-radius:6px;font-weight:900');
 })();
 </script>
+<script id="v77-final">
+(function(){
+'use strict';
+if (window.__v77) return;
+window.__v77 = true;
+
+/* ① CSS — همه مودال‌های قدیمی رو مخفی کن */
+const st = document.createElement('style');
+st.id = 'v77-css';
+st.textContent = `
+  #v73Modal, #v72Modal, #v71ImgViewer, #__v65ImgViewer, #imgModal, #__v59ImgModal, #v74Modal, #v75M, #v76Modal {
+    display: none !important;
+    visibility: hidden !important;
+    pointer-events: none !important;
+    opacity: 0 !important;
+  }
+  #v77View {
+    position: fixed !important;
+    inset: 0 !important;
+    background: rgba(10,15,30,.96) !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    direction: ltr !important;
+    z-index: 2147483647 !important;
+    padding: 16px !important;
+    font-family: 'Vazirmatn', Tahoma, sans-serif !important;
+    box-sizing: border-box !important;
+  }
+  #v77View * { box-sizing: border-box !important; }
+  #v77View .v77-box {
+    width: 100% !important; max-width: 1100px !important;
+    height: 100% !important; max-height: 92vh !important;
+    background: #0f172a !important; border-radius: 16px !important;
+    display: flex !important; flex-direction: column !important;
+    overflow: hidden !important;
+    box-shadow: 0 30px 90px rgba(0,0,0,.75) !important;
+  }
+  #v77View .v77-head {
+    padding: 10px 14px !important;
+    background: linear-gradient(135deg,#1e293b,#0f172a) !important;
+    color: #fff !important; display: flex !important;
+    justify-content: space-between !important; align-items: center !important;
+    gap: 10px !important; flex-shrink: 0 !important;
+    border-bottom: 1px solid rgba(255,255,255,.08) !important;
+  }
+  #v77View .v77-name {
+    font-size: 13px !important; font-weight: 800 !important;
+    color: #e2e8f0 !important; flex: 1 !important;
+    word-break: break-all !important;
+  }
+  #v77View .v77-tools {
+    display: flex !important; gap: 5px !important;
+    flex-shrink: 0 !important; flex-wrap: wrap !important;
+  }
+  #v77View .v77-btn {
+    background: rgba(255,255,255,.1) !important;
+    border: 1px solid rgba(255,255,255,.15) !important;
+    color: #fff !important; width: 34px !important;
+    height: 34px !important; border-radius: 9px !important;
+    font-size: 15px !important; font-weight: 800 !important;
+    cursor: pointer !important; display: inline-flex !important;
+    align-items: center !important; justify-content: center !important;
+    padding: 0 !important; font-family: inherit !important;
+    flex-shrink: 0 !important;
+  }
+  #v77View .v77-btn:hover {
+    background: rgba(251,191,36,.3) !important;
+    border-color: #fbbf24 !important; color: #fbbf24 !important;
+  }
+  #v77View .v77-btn.close {
+    background: rgba(220,38,38,.5) !important;
+    border-color: rgba(220,38,38,.8) !important;
+    width: 40px !important; height: 40px !important;
+    font-size: 20px !important;
+  }
+  #v77View .v77-btn.close:hover {
+    background: #dc2626 !important; color: #fff !important;
+  }
+  #v77View .v77-body {
+    flex: 1 !important; overflow: auto !important;
+    background: #0a0f1e !important; display: flex !important;
+    align-items: center !important; justify-content: center !important;
+    cursor: grab !important; touch-action: none !important;
+    padding: 8px !important; min-height: 0 !important;
+  }
+  #v77View .v77-body img {
+    max-width: 100% !important; max-height: 100% !important;
+    user-select: none !important; -webkit-user-drag: none !important;
+    pointer-events: none !important;
+    transform-origin: center !important; display: block !important;
+  }
+  #v77View .v77-body embed, #v77View .v77-body iframe {
+    width: 100% !important; height: 100% !important;
+    border: 0 !important; background: #fff !important;
+    border-radius: 6px !important;
+  }
+  #v77View .v77-foot {
+    padding: 6px 12px !important; background: #0f172a !important;
+    color: #64748b !important; font-size: 11px !important;
+    text-align: center !important; flex-shrink: 0 !important;
+    border-top: 1px solid rgba(255,255,255,.06) !important;
+    direction: rtl !important;
+  }
+`;
+document.head.appendChild(st);
+
+/* ② هر 200ms همه مودال‌های قدیمی رو حذف کن */
+const KILL = ['v73Modal','v72Modal','v71ImgViewer','__v65ImgViewer','imgModal','__v59ImgModal','v74Modal','v75M','v76Modal'];
+setInterval(() => {
+  KILL.forEach(id => {
+    document.querySelectorAll('#'+id).forEach(el => {
+      try { el.remove(); } catch(e){}
+    });
+  });
+}, 200);
+
+/* ③ نمایشگر جدید */
+function showViewer(url, name, blob){
+  /* هر مودال قدیمی رو بکش */
+  KILL.forEach(id => {
+    document.querySelectorAll('#'+id).forEach(el => { try { el.remove(); } catch(e){} });
+  });
+
+  const esc = s => String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+  const tp = (blob && blob.type) || '';
+  const low = String(name||'').toLowerCase();
+  const isImg = tp.startsWith('image/') || /\.(jpg|jpeg|png|gif|webp|bmp|svg|tif|tiff|heic|avif)$/i.test(low);
+  const isPdf = tp === 'application/pdf' || /\.pdf$/i.test(low);
+
+  let tools = '';
+  if (isImg){
+    tools = '<button class="v77-btn" data-a="zo">−</button>'+
+            '<button class="v77-btn" data-a="zr">⟲</button>'+
+            '<button class="v77-btn" data-a="zi">+</button>'+
+            '<button class="v77-btn" data-a="rl">↺</button>'+
+            '<button class="v77-btn" data-a="rr">↻</button>'+
+            '<button class="v77-btn" data-a="fh">⇋</button>'+
+            '<button class="v77-btn" data-a="fv">⇵</button>';
+  }
+  if (blob) tools += '<button class="v77-btn" data-a="dl" title="دانلود">⬇</button>';
+  tools += '<button class="v77-btn close" data-a="cl" title="بستن">✕</button>';
+
+  let body = '';
+  if (isImg) body = '<img id="v77Img" src="'+url+'">';
+  else if (isPdf) body = '<embed src="'+url+'" type="application/pdf">';
+  else body = '<iframe src="'+url+'"></iframe>';
+
+  const m = document.createElement('div');
+  m.id = 'v77View';
+  m.innerHTML =
+    '<div class="v77-box">'+
+      '<div class="v77-head">'+
+        '<div class="v77-name">📄 '+esc(name)+'</div>'+
+        '<div class="v77-tools">'+tools+'</div>'+
+      '</div>'+
+      '<div class="v77-body" id="v77Body">'+body+'</div>'+
+      '<div class="v77-foot">'+(isImg?'💡 اسکرول = زوم • کشیدن = جابجایی • Esc = بستن':'💡 Esc = بستن')+'</div>'+
+    '</div>';
+
+  document.body.appendChild(m);
+  document.body.style.overflow = 'hidden';
+
+  const bEl = document.getElementById('v77Body');
+  const img = document.getElementById('v77Img');
+  let zoom=1, rot=0, px=0, py=0, fh=1, fv=1, drag=false, sx=0, sy=0, d0=0, z0=1;
+
+  function upd(){ if (img) img.style.transform = 'translate('+px+'px,'+py+'px) scale('+(zoom*fh)+','+(zoom*fv)+') rotate('+rot+'deg)'; }
+  function zf(d){ zoom = Math.max(0.1, Math.min(10, zoom+d)); upd(); }
+  function rs(){ zoom=1; rot=0; px=0; py=0; fh=1; fv=1; upd(); }
+
+  function onMM(e){ if (!drag) return; px = e.clientX-sx; py = e.clientY-sy; upd(); }
+  function onMU(){ drag = false; if (bEl) bEl.style.cursor = 'grab'; }
+  function onK(e){ if (e.key === 'Escape'){ e.preventDefault(); e.stopPropagation(); close(); } }
+
+  function close(){
+    try { document.removeEventListener('keydown', onK, true); } catch(e){}
+    try { window.removeEventListener('mousemove', onMM); } catch(e){}
+    try { window.removeEventListener('mouseup', onMU); } catch(e){}
+    try { document.body.style.overflow = ''; } catch(e){}
+    try { if (url && url.startsWith('blob:')) URL.revokeObjectURL(url); } catch(e){}
+    try { m.remove(); } catch(e){}
+  }
+
+  m.querySelectorAll('.v77-btn').forEach(btn => {
+    btn.addEventListener('click', function(e){
+      e.preventDefault();
+      e.stopPropagation();
+      const a = this.dataset.a;
+      if (a === 'zi') zf(0.2);
+      else if (a === 'zo') zf(-0.2);
+      else if (a === 'zr') rs();
+      else if (a === 'rl'){ rot -= 90; upd(); }
+      else if (a === 'rr'){ rot += 90; upd(); }
+      else if (a === 'fh'){ fh *= -1; upd(); }
+      else if (a === 'fv'){ fv *= -1; upd(); }
+      else if (a === 'dl' && blob){
+        try { const l=document.createElement('a'); l.href=url; l.download=name||'file'; document.body.appendChild(l); l.click(); l.remove(); } catch(er){}
+      }
+      else if (a === 'cl') close();
+    });
+  });
+
+  if (isImg && bEl && img){
+    bEl.addEventListener('wheel', e => { e.preventDefault(); zf(e.deltaY<0?0.15:-0.15); }, { passive: false });
+
+    bEl.addEventListener('touchstart', e => {
+      if (e.touches.length === 2){ d0 = Math.hypot(e.touches[0].clientX-e.touches[1].clientX, e.touches[0].clientY-e.touches[1].clientY); z0 = zoom; }
+      else if (e.touches.length === 1){ drag = true; sx = e.touches[0].clientX-px; sy = e.touches[0].clientY-py; }
+    }, { passive: true });
+
+    bEl.addEventListener('touchmove', e => {
+      if (e.touches.length === 2 && d0 > 0){
+        e.preventDefault();
+        const d = Math.hypot(e.touches[0].clientX-e.touches[1].clientX, e.touches[0].clientY-e.touches[1].clientY);
+        zoom = Math.max(0.1, Math.min(10, z0*(d/d0)));
+        upd();
+      } else if (e.touches.length === 1 && drag){
+        e.preventDefault();
+        px = e.touches[0].clientX-sx; py = e.touches[0].clientY-sy; upd();
+      }
+    }, { passive: false });
+
+    bEl.addEventListener('touchend', () => { drag = false; d0 = 0; });
+
+    bEl.addEventListener('mousedown', e => {
+      if (e.target.closest('.v77-btn')) return;
+      drag = true; sx = e.clientX-px; sy = e.clientY-py;
+      bEl.style.cursor = 'grabbing';
+    });
+
+    window.addEventListener('mousemove', onMM);
+    window.addEventListener('mouseup', onMU);
+  }
+
+  document.addEventListener('keydown', onK, true);
+
+  m.addEventListener('click', e => { if (e.target === m) close(); });
+}
+
+/* ④ openFile جدید */
+async function open77(fileId){
+  try {
+    let blob = null;
+    const gs = [window.wfGet, window.v55Get, window.v59Get, typeof v55Get === 'function' ? v55Get : null, typeof v59Get === 'function' ? v59Get : null].filter(Boolean);
+    for (const g of gs){ try { blob = await g(fileId); if (blob) break; } catch(e){} }
+    if (!blob){ if (typeof toast === 'function') toast('❌ فایل یافت نشد', 'error'); return; }
+    showViewer(URL.createObjectURL(blob), blob.name || 'file', blob);
+  } catch(e){ if (typeof toast === 'function') toast('❌ ' + e.message, 'error'); }
+}
+
+window.__v51OpenFile = open77;
+window.__v55OpenFile = open77;
+window.__v59OpenFile = open77;
+
+console.log('%c✅ V77 — Final working viewer', 'background:#22c55e;color:#fff;padding:5px 12px;border-radius:6px;font-weight:900;font-size:13px');
+})();
+</script>
 </body>
 </html>
