@@ -26118,5 +26118,456 @@ setInterval(() => {
 console.log('✅ V65 — Status + Dashboard + ImageViewer + Mobile Topbar');
 })();
 </script>
+<script id="v72-viewer-fix">
+(function(){
+'use strict';
+if (window.__v72) return;
+window.__v72 = true;
+
+console.log('%c🟢 V72 VIEWER FIX', 'background:#dc2626;color:#fff;padding:4px 10px;border-radius:4px;font-weight:900');
+
+/* ═══════════════════════════════════════════════════════════
+   CSS — همه چیز با direction:ltr و position:fixed مطلق
+   ═══════════════════════════════════════════════════════════ */
+(function injectCSS(){
+  if (document.getElementById('v72-css')) return;
+  const s = document.createElement('style');
+  s.id = 'v72-css';
+  s.textContent = `
+    /* مودال اصلی — وسط صفحه، فارغ از RTL */
+    #v72Modal {
+      position: fixed !important;
+      top: 0 !important;
+      left: 0 !important;
+      right: 0 !important;
+      bottom: 0 !important;
+      width: 100vw !important;
+      height: 100vh !important;
+      margin: 0 !important;
+      padding: 20px !important;
+      box-sizing: border-box !important;
+      background: rgba(10, 15, 30, .96) !important;
+      display: flex !important;
+      align-items: center !important;
+      justify-content: center !important;
+      direction: ltr !important;
+      z-index: 99999 !important;
+      backdrop-filter: blur(6px) !important;
+      -webkit-backdrop-filter: blur(6px) !important;
+      overflow: hidden !important;
+      animation: v72Fade .2s ease !important;
+    }
+
+    #v72Modal * { box-sizing: border-box !important; }
+
+    #v72Modal .v72-box {
+      width: 100% !important;
+      max-width: 1100px !important;
+      height: 100% !important;
+      max-height: 92vh !important;
+      background: #0f172a !important;
+      border-radius: 16px !important;
+      display: flex !important;
+      flex-direction: column !important;
+      overflow: hidden !important;
+      box-shadow: 0 25px 80px rgba(0,0,0,.7) !important;
+      direction: ltr !important;
+    }
+
+    #v72Modal .v72-head {
+      padding: 10px 14px !important;
+      background: linear-gradient(135deg, #1e293b, #0f172a) !important;
+      color: #fff !important;
+      display: flex !important;
+      justify-content: space-between !important;
+      align-items: center !important;
+      gap: 10px !important;
+      flex-wrap: wrap !important;
+      flex-shrink: 0 !important;
+      border-bottom: 1px solid rgba(255,255,255,.08) !important;
+      direction: rtl !important;
+    }
+
+    #v72Modal .v72-name {
+      font-size: 13px !important;
+      font-weight: 800 !important;
+      color: #e2e8f0 !important;
+      word-break: break-all !important;
+      flex: 1 !important;
+      min-width: 0 !important;
+      text-align: right !important;
+    }
+
+    #v72Modal .v72-tools {
+      display: flex !important;
+      gap: 5px !important;
+      flex-wrap: wrap !important;
+      direction: ltr !important;
+    }
+
+    #v72Modal .v72-btn {
+      background: rgba(255,255,255,.1) !important;
+      border: 1px solid rgba(255,255,255,.15) !important;
+      color: #fff !important;
+      width: 34px !important;
+      height: 34px !important;
+      border-radius: 9px !important;
+      font-size: 14px !important;
+      font-weight: 800 !important;
+      cursor: pointer !important;
+      display: inline-flex !important;
+      align-items: center !important;
+      justify-content: center !important;
+      padding: 0 !important;
+      font-family: inherit !important;
+      transition: all .15s !important;
+      flex-shrink: 0 !important;
+    }
+    #v72Modal .v72-btn:hover {
+      background: rgba(251,191,36,.25) !important;
+      border-color: #fbbf24 !important;
+      color: #fbbf24 !important;
+      transform: translateY(-1px) !important;
+    }
+    #v72Modal .v72-btn.close {
+      background: rgba(220,38,38,.3) !important;
+      border-color: rgba(220,38,38,.6) !important;
+    }
+    #v72Modal .v72-btn.close:hover {
+      background: #dc2626 !important;
+      color: #fff !important;
+      border-color: #dc2626 !important;
+    }
+
+    #v72Modal .v72-stage {
+      flex: 1 !important;
+      overflow: auto !important;
+      position: relative !important;
+      background: #0a0f1e !important;
+      display: flex !important;
+      align-items: center !important;
+      justify-content: center !important;
+      direction: ltr !important;
+      cursor: grab !important;
+      touch-action: none !important;
+      min-height: 0 !important;
+      padding: 10px !important;
+    }
+    #v72Modal .v72-stage.grabbing { cursor: grabbing !important; }
+
+    #v72Modal .v72-stage img {
+      max-width: 100% !important;
+      max-height: 100% !important;
+      display: block !important;
+      user-select: none !important;
+      -webkit-user-drag: none !important;
+      pointer-events: none !important;
+      transform-origin: center center !important;
+      transition: transform .12s ease !important;
+    }
+
+    #v72Modal .v72-stage iframe {
+      width: 100% !important;
+      height: 100% !important;
+      border: 0 !important;
+      background: #fff !important;
+      border-radius: 8px !important;
+    }
+
+    #v72Modal .v72-stage embed {
+      width: 100% !important;
+      height: 100% !important;
+      border: 0 !important;
+      background: #fff !important;
+    }
+
+    #v72Modal .v72-foot {
+      padding: 6px 14px !important;
+      background: #0f172a !important;
+      color: #64748b !important;
+      font-size: 11px !important;
+      text-align: center !important;
+      flex-shrink: 0 !important;
+      border-top: 1px solid rgba(255,255,255,.06) !important;
+      direction: rtl !important;
+    }
+
+    @keyframes v72Fade {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    @media (max-width: 600px) {
+      #v72Modal { padding: 8px !important; }
+      #v72Modal .v72-btn { width: 30px !important; height: 30px !important; font-size: 12px !important; }
+      #v72Modal .v72-name { font-size: 11.5px !important; }
+    }
+  `;
+  document.head.appendChild(s);
+})();
+
+/* ═══════════════════════════════════════════════════════════
+   نمایشگر مرکزی — عکس، PDF، و هر فایل دیگه
+   ═══════════════════════════════════════════════════════════ */
+function openViewer(url, fileName, blob){
+  /* حذف نسخه‌ی قبلی */
+  const old = document.getElementById('v72Modal');
+  if (old){
+    if (old.__url && old.__url !== url){
+      try { URL.revokeObjectURL(old.__url); } catch(e){}
+    }
+    old.remove();
+  }
+
+  const esc_ = s => String(s==null?'':s)
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+    .replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+
+  const isImage = (blob && (blob.type||'').startsWith('image/')) ||
+                  /\.(jpg|jpeg|png|gif|webp|bmp|svg|tif|tiff|heic)$/i.test(fileName || '');
+  const isPDF = (blob && blob.type === 'application/pdf') ||
+                /\.pdf$/i.test(fileName || '');
+
+  const modal = document.createElement('div');
+  modal.id = 'v72Modal';
+  modal.__url = url;
+
+  /* ─── دکمه‌ها ─── */
+  let toolsHTML = '';
+  if (isImage){
+    toolsHTML =
+      '<button class="v72-btn" data-act="zoom-out" title="کوچک">−</button>' +
+      '<button class="v72-btn" data-act="zoom-reset" title="بازنشانی">⟲</button>' +
+      '<button class="v72-btn" data-act="zoom-in" title="بزرگ">+</button>' +
+      '<button class="v72-btn" data-act="rotate-left" title="چرخش چپ">↺</button>' +
+      '<button class="v72-btn" data-act="rotate-right" title="چرخش راست">↻</button>' +
+      '<button class="v72-btn" data-act="flip-h" title="آینه افقی">⇋</button>' +
+      '<button class="v72-btn" data-act="flip-v" title="آینه عمودی">⇵</button>';
+  }
+  if (blob){
+    toolsHTML += '<button class="v72-btn" data-act="download" title="دانلود">⬇️</button>';
+  }
+  toolsHTML += '<button class="v72-btn close" data-act="close" title="بستن (Esc)">✕</button>';
+
+  /* ─── بدنه ─── */
+  let stageHTML = '';
+  if (isImage){
+    stageHTML = '<img id="v72Img" src="' + url + '" alt="">';
+  } else if (isPDF){
+    stageHTML = '<embed src="' + url + '" type="application/pdf">';
+  } else {
+    stageHTML = '<iframe src="' + url + '" title="file"></iframe>';
+  }
+
+  modal.innerHTML =
+    '<div class="v72-box">' +
+      '<div class="v72-head">' +
+        '<div class="v72-name">📄 ' + esc_(fileName) + '</div>' +
+        '<div class="v72-tools">' + toolsHTML + '</div>' +
+      '</div>' +
+      '<div class="v72-stage" id="v72Stage">' + stageHTML + '</div>' +
+      '<div class="v72-foot">' +
+        (isImage ? '💡 اسکرول = زوم • کشیدن = جابجایی • Esc = بستن' :
+         isPDF ? '💡 برای بزرگ‌نمایی Ctrl + اسکرول • Esc = بستن' :
+         '💡 Esc = بستن') +
+      '</div>' +
+    '</div>';
+
+  document.body.appendChild(modal);
+  /* قفل اسکرول صفحه */
+  document.body.style.overflow = 'hidden';
+
+  /* ─── منطق عکس ─── */
+  const stage = document.getElementById('v72Stage');
+  const img = document.getElementById('v72Img');
+  let zoom = 1, rotation = 0, panX = 0, panY = 0, flipH = 1, flipV = 1;
+
+  function updateTransform(){
+    if (!img) return;
+    img.style.transform =
+      'translate(' + panX + 'px, ' + panY + 'px) ' +
+      'scale(' + (zoom * flipH) + ', ' + (zoom * flipV) + ') ' +
+      'rotate(' + rotation + 'deg)';
+  }
+  function applyZoom(d){ zoom = Math.max(0.1, Math.min(10, zoom + d)); updateTransform(); }
+  function resetAll(){ zoom=1; rotation=0; panX=0; panY=0; flipH=1; flipV=1; updateTransform(); }
+
+  function closeViewer(){
+    document.removeEventListener('keydown', onKey);
+    window.removeEventListener('mousemove', onMouseMove);
+    window.removeEventListener('mouseup', onMouseUp);
+    document.body.style.overflow = '';
+    try { if (url && url.startsWith('blob:')) URL.revokeObjectURL(url); } catch(e){}
+    modal.remove();
+  }
+
+  /* ─── دکمه‌ها ─── */
+  modal.querySelectorAll('.v72-btn').forEach(b => {
+    b.addEventListener('click', function(e){
+      e.stopPropagation();
+      const a = this.dataset.act;
+      if (a === 'zoom-in') applyZoom(0.2);
+      else if (a === 'zoom-out') applyZoom(-0.2);
+      else if (a === 'zoom-reset') resetAll();
+      else if (a === 'rotate-left'){ rotation -= 90; updateTransform(); }
+      else if (a === 'rotate-right'){ rotation += 90; updateTransform(); }
+      else if (a === 'flip-h'){ flipH *= -1; updateTransform(); }
+      else if (a === 'flip-v'){ flipV *= -1; updateTransform(); }
+      else if (a === 'download' && blob){
+        try {
+          const a2 = document.createElement('a');
+          a2.href = url;
+          a2.download = fileName || 'file';
+          document.body.appendChild(a2);
+          a2.click();
+          a2.remove();
+        } catch(err){}
+      }
+      else if (a === 'close') closeViewer();
+    });
+  });
+
+  /* ─── فقط برای عکس: wheel و drag ─── */
+  if (isImage && stage && img){
+    stage.addEventListener('wheel', e => {
+      e.preventDefault();
+      applyZoom(e.deltaY < 0 ? 0.15 : -0.15);
+    }, { passive: false });
+
+    let startDist=0, startZoomVal=1, dX=0, dY=0, drag=false;
+
+    stage.addEventListener('touchstart', e => {
+      if (e.touches.length === 2){
+        startDist = Math.hypot(
+          e.touches[0].clientX - e.touches[1].clientX,
+          e.touches[0].clientY - e.touches[1].clientY
+        );
+        startZoomVal = zoom;
+      } else if (e.touches.length === 1){
+        drag = true;
+        dX = e.touches[0].clientX - panX;
+        dY = e.touches[0].clientY - panY;
+      }
+    }, { passive: true });
+
+    stage.addEventListener('touchmove', e => {
+      if (e.touches.length === 2 && startDist > 0){
+        e.preventDefault();
+        const d = Math.hypot(
+          e.touches[0].clientX - e.touches[1].clientX,
+          e.touches[0].clientY - e.touches[1].clientY
+        );
+        zoom = Math.max(0.1, Math.min(10, startZoomVal * (d / startDist)));
+        updateTransform();
+      } else if (e.touches.length === 1 && drag){
+        e.preventDefault();
+        panX = e.touches[0].clientX - dX;
+        panY = e.touches[0].clientY - dY;
+        updateTransform();
+      }
+    }, { passive: false });
+
+    stage.addEventListener('touchend', () => {
+      drag = false;
+      startDist = 0;
+    }, { passive: true });
+
+    stage.addEventListener('mousedown', e => {
+      if (e.target.closest('.v72-btn')) return;
+      drag = true;
+      dX = e.clientX - panX;
+      dY = e.clientY - panY;
+      stage.classList.add('grabbing');
+    });
+    function onMouseMove(e){
+      if (!drag) return;
+      panX = e.clientX - dX;
+      panY = e.clientY - dY;
+      updateTransform();
+    }
+    function onMouseUp(){
+      if (!drag) return;
+      drag = false;
+      stage.classList.remove('grabbing');
+    }
+    window.addEventListener('mousemove', onMouseMove);
+    window.addEventListener('mouseup', onMouseUp);
+  }
+
+  /* ─── کلیدها ─── */
+  function onKey(e){
+    if (e.key === 'Escape') closeViewer();
+    else if (isImage && (e.key === '+' || e.key === '=')) applyZoom(0.2);
+    else if (isImage && e.key === '-') applyZoom(-0.2);
+  }
+  document.addEventListener('keydown', onKey);
+
+  /* ─── کلیک روی پس‌زمینه = بستن ─── */
+  modal.addEventListener('click', e => {
+    if (e.target === modal) closeViewer();
+  });
+}
+
+/* ═══════════════════════════════════════════════════════════
+   Override همه‌ی توابع باز کردن فایل
+   ═══════════════════════════════════════════════════════════ */
+async function openFileMaster(fileId){
+  try {
+    let blob = null;
+    /* تلاش برای دریافت blob از منابع مختلف */
+    const getters = [
+      window.wfGet, window.v55Get, window.v59Get,
+      typeof v55Get === 'function' ? v55Get : null,
+      typeof v59Get === 'function' ? v59Get : null
+    ].filter(Boolean);
+
+    for (const g of getters){
+      try { blob = await g(fileId); if (blob) break; } catch(e){}
+    }
+
+    if (!blob){
+      if (typeof toast === 'function') toast('❌ فایل یافت نشد', 'error');
+      return;
+    }
+
+    const url = URL.createObjectURL(blob);
+    const fileName = blob.name || 'file';
+
+    /* همه‌ی انواع فایل رو در مودال مرکزی نشون بده */
+    openViewer(url, fileName, blob);
+
+  } catch(e){
+    if (typeof toast === 'function') toast('❌ ' + e.message, 'error');
+  }
+}
+
+/* جایگزینی همه */
+window.__v51OpenFile = openFileMaster;
+window.__v55OpenFile = openFileMaster;
+window.__v59OpenFile = openFileMaster;
+window.openFileMaster = openFileMaster;
+
+/* ═══════════════════════════════════════════════════════════
+   hook مودال قدیمی imgModal (اگه باز شد، جایگزین کن)
+   ═══════════════════════════════════════════════════════════ */
+const _v72Obs = new MutationObserver(() => {
+  const oldM = document.getElementById('imgModal');
+  if (!oldM || oldM.__v72) return;
+  oldM.__v72 = true;
+  const oi = oldM.querySelector('img');
+  if (!oi) return;
+  const s = oi.src;
+  const nEl = oldM.querySelector('div[style*="font-weight:800"]');
+  const nm = nEl ? nEl.textContent.replace('📄','').trim() : 'image';
+  setTimeout(() => {
+    try { oldM.remove(); } catch(e){}
+    openViewer(s, nm, null);
+  }, 20);
+});
+_v72Obs.observe(document.body, { childList: true, subtree: true });
+
+console.log('%c✅ V72 — Viewer centered & fixed', 'background:#22c55e;color:#fff;padding:4px 10px;border-radius:4px;font-weight:900');
+})();
+</script>
 </body>
 </html>
