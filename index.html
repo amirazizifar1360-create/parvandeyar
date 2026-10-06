@@ -26658,5 +26658,173 @@ console.log('%c✅ V73 — Viewer + Topbar fixed', 'background:#22c55e;color:#ff
 console.log('%c💡 تست: window.__v73Test()', 'color:#7c3aed;font-weight:bold');
 })();
 </script>
+<script id="v75-pdf-fix">
+(function(){
+'use strict';
+if (window.__v75) return;
+window.__v75 = true;
+
+/* همه‌ی مودال‌های قدیمی رو بکش */
+const OLD = ['imgModal','__v59ImgModal','__v65ImgViewer','v71ImgViewer','v72Modal','v73Modal','v74Modal'];
+setInterval(() => {
+  OLD.forEach(id => {
+    document.querySelectorAll('#'+id).forEach(el => {
+      try { if (el.__url && el.__url.startsWith('blob:')) URL.revokeObjectURL(el.__url); } catch(e){}
+      try { el.remove(); } catch(e){}
+    });
+  });
+  if (document.body.style.overflow === 'hidden' && !document.querySelector('[id^="v75M"]')){
+    document.body.style.overflow = '';
+  }
+}, 500);
+
+/* ═══ نمایشگر جدید ═══ */
+if (!document.getElementById('v75-css')){
+  const s = document.createElement('style');
+  s.id = 'v75-css';
+  s.textContent = `
+    #v75M{position:fixed!important;inset:0!important;background:rgba(10,15,30,.95)!important;display:flex!important;align-items:center!important;justify-content:center!important;direction:ltr!important;z-index:2147483647!important;padding:16px!important;backdrop-filter:blur(8px)!important}
+    #v75M *{box-sizing:border-box!important}
+    #v75M .v75F{width:100%!important;max-width:1100px!important;height:100%!important;max-height:92vh!important;background:#0f172a!important;border-radius:16px!important;display:flex!important;flex-direction:column!important;overflow:hidden!important;box-shadow:0 30px 90px rgba(0,0,0,.7)!important}
+    #v75M .v75H{padding:10px 14px!important;background:linear-gradient(135deg,#1e293b,#0f172a)!important;color:#fff!important;display:flex!important;justify-content:space-between!important;align-items:center!important;gap:10px!important;flex-shrink:0!important;border-bottom:1px solid rgba(255,255,255,.08)!important}
+    #v75M .v75N{font-size:13px!important;font-weight:800!important;color:#e2e8f0!important;flex:1!important;word-break:break-all!important;font-family:'Vazirmatn',Tahoma,sans-serif!important}
+    #v75M .v75T{display:flex!important;gap:4px!important;flex-shrink:0!important}
+    #v75M .v75B{background:rgba(255,255,255,.1)!important;border:1px solid rgba(255,255,255,.15)!important;color:#fff!important;width:34px!important;height:34px!important;border-radius:9px!important;font-size:15px!important;font-weight:800!important;cursor:pointer!important;display:inline-flex!important;align-items:center!important;justify-content:center!important;padding:0!important;font-family:inherit!important}
+    #v75M .v75B:hover{background:rgba(251,191,36,.3)!important;border-color:#fbbf24!important;color:#fbbf24!important}
+    #v75M .v75B.v75X{background:rgba(220,38,38,.4)!important;border-color:rgba(220,38,38,.7)!important}
+    #v75M .v75B.v75X:hover{background:#dc2626!important;color:#fff!important}
+    #v75M .v75Body{flex:1!important;overflow:auto!important;background:#0a0f1e!important;display:flex!important;align-items:center!important;justify-content:center!important;cursor:grab!important;touch-action:none!important;padding:8px!important}
+    #v75M .v75Body.grab{cursor:grabbing!important}
+    #v75M .v75Body img{max-width:100%!important;max-height:100%!important;user-select:none!important;-webkit-user-drag:none!important;pointer-events:none!important;transform-origin:center!important;display:block!important}
+    #v75M .v75Ftr{padding:6px 12px!important;background:#0f172a!important;color:#64748b!important;font-size:11px!important;text-align:center!important;flex-shrink:0!important;border-top:1px solid rgba(255,255,255,.06)!important;direction:rtl!important;font-family:'Vazirmatn',Tahoma,sans-serif!important}
+  `;
+  document.head.appendChild(s);
+}
+
+function showImg(url, name, blob){
+  OLD.forEach(id => { document.querySelectorAll('#'+id).forEach(el => el.remove()); });
+  const esc_ = s => String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  const m = document.createElement('div');
+  m.id = 'v75M';
+  m.__url = url;
+  m.innerHTML =
+    '<div class="v75F">'+
+      '<div class="v75H">'+
+        '<div class="v75N">🖼️ '+esc_(name)+'</div>'+
+        '<div class="v75T">'+
+          '<button class="v75B" data-a="zo">−</button>'+
+          '<button class="v75B" data-a="zr">⟲</button>'+
+          '<button class="v75B" data-a="zi">+</button>'+
+          '<button class="v75B" data-a="rl">↺</button>'+
+          '<button class="v75B" data-a="rr">↻</button>'+
+          (blob?'<button class="v75B" data-a="dl">⬇</button>':'')+
+          '<button class="v75B v75X" data-a="cl">✕</button>'+
+        '</div>'+
+      '</div>'+
+      '<div class="v75Body" id="v75Body"><img id="v75Img" src="'+url+'"></div>'+
+      '<div class="v75Ftr">💡 اسکرول = زوم • کشیدن = جابجایی • Esc = بستن</div>'+
+    '</div>';
+  document.body.appendChild(m);
+  document.body.style.overflow = 'hidden';
+
+  const b = document.getElementById('v75Body');
+  const i = document.getElementById('v75Img');
+  let z=1, r=0, x=0, y=0;
+  const upd = () => { i.style.transform = 'translate('+x+'px,'+y+'px) scale('+z+') rotate('+r+'deg)'; };
+  const zf = d => { z=Math.max(0.1,Math.min(10,z+d)); upd(); };
+
+  const close = () => {
+    document.removeEventListener('keydown', k, true);
+    window.removeEventListener('mousemove', mv);
+    window.removeEventListener('mouseup', mu);
+    document.body.style.overflow = '';
+    try { if (url.startsWith('blob:')) URL.revokeObjectURL(url); } catch(e){}
+    try { m.remove(); } catch(e){}
+  };
+
+  m.querySelectorAll('.v75B').forEach(btn => {
+    btn.onclick = e => {
+      e.preventDefault(); e.stopPropagation();
+      const a = btn.dataset.a;
+      if (a==='zi') zf(0.2);
+      else if (a==='zo') zf(-0.2);
+      else if (a==='zr'){ z=1; r=0; x=0; y=0; upd(); }
+      else if (a==='rl'){ r-=90; upd(); }
+      else if (a==='rr'){ r+=90; upd(); }
+      else if (a==='dl' && blob){
+        try { const l=document.createElement('a'); l.href=url; l.download=name||'image'; document.body.appendChild(l); l.click(); l.remove(); } catch(er){}
+      }
+      else if (a==='cl') close();
+    };
+  });
+
+  b.addEventListener('wheel', e => { e.preventDefault(); zf(e.deltaY<0?0.15:-0.15); }, { passive:false });
+  let dr=false, sx=0, sy=0, d0=0, z0=1;
+  b.addEventListener('touchstart', e => {
+    if (e.touches.length===2){ d0=Math.hypot(e.touches[0].clientX-e.touches[1].clientX, e.touches[0].clientY-e.touches[1].clientY); z0=z; }
+    else if (e.touches.length===1){ dr=true; sx=e.touches[0].clientX-x; sy=e.touches[0].clientY-y; }
+  }, { passive:true });
+  b.addEventListener('touchmove', e => {
+    if (e.touches.length===2 && d0>0){ e.preventDefault(); const d=Math.hypot(e.touches[0].clientX-e.touches[1].clientX, e.touches[0].clientY-e.touches[1].clientY); z=Math.max(0.1,Math.min(10,z0*(d/d0))); upd(); }
+    else if (e.touches.length===1 && dr){ e.preventDefault(); x=e.touches[0].clientX-sx; y=e.touches[0].clientY-sy; upd(); }
+  }, { passive:false });
+  b.addEventListener('touchend', () => { dr=false; d0=0; });
+  b.addEventListener('mousedown', e => { dr=true; sx=e.clientX-x; sy=e.clientY-y; b.classList.add('grab'); });
+  function mv(e){ if(!dr) return; x=e.clientX-sx; y=e.clientY-sy; upd(); }
+  function mu(){ dr=false; b.classList.remove('grab'); }
+  window.addEventListener('mousemove', mv);
+  window.addEventListener('mouseup', mu);
+  function k(e){ if (e.key==='Escape'){ e.preventDefault(); e.stopPropagation(); close(); } }
+  document.addEventListener('keydown', k, true);
+  m.addEventListener('click', e => { if (e.target===m) close(); });
+}
+
+/* ═══ باز کردن فایل ═══ */
+async function openFile75(fileId){
+  try {
+    let blob = null;
+    const gs = [window.wfGet, window.v55Get, window.v59Get, typeof v55Get==='function'?v55Get:null, typeof v59Get==='function'?v59Get:null].filter(Boolean);
+    for (const g of gs){ try { blob = await g(fileId); if (blob) break; } catch(e){} }
+    if (!blob){ if (typeof toast==='function') toast('❌ فایل یافت نشد','error'); return; }
+
+    const nm = (blob.name||'').toLowerCase();
+    const tp = blob.type || '';
+    const isImg = tp.startsWith('image/') || /\.(jpg|jpeg|png|gif|webp|bmp|svg|tif|tiff|heic|avif)$/i.test(nm);
+    const isPdf = tp === 'application/pdf' || /\.pdf$/i.test(nm);
+
+    if (isImg){
+      showImg(URL.createObjectURL(blob), blob.name||'image', blob);
+    } else {
+      /* PDF و بقیه → در تب جدید با نمایشگر کروم */
+      const url = URL.createObjectURL(blob);
+      const w = window.open(url, '_blank');
+      if (!w){
+        if (typeof toast==='function') toast('⚠️ پاپ‌آپ مسدود شد — اجازه بده','warn',4000);
+      } else {
+        setTimeout(() => { try { URL.revokeObjectURL(url); } catch(e){} }, 90000);
+      }
+    }
+  } catch(e){ if (typeof toast==='function') toast('❌ '+e.message,'error'); }
+}
+
+window.__v51OpenFile = openFile75;
+window.__v55OpenFile = openFile75;
+window.__v59OpenFile = openFile75;
+
+/* ESC سراسری — بستن هر مودال باقیمانده */
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape'){
+    OLD.forEach(id => {
+      document.querySelectorAll('#'+id).forEach(el => { try { el.remove(); } catch(er){} });
+    });
+    if (document.body.style.overflow === 'hidden' && !document.getElementById('v75M')){
+      document.body.style.overflow = '';
+    }
+  }
+}, true);
+
+console.log('%c✅ V75 — PDF→Tab, Image→Modal', 'background:#22c55e;color:#fff;padding:5px 12px;border-radius:6px;font-weight:900');
+})();
+</script>
 </body>
 </html>
